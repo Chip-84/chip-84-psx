@@ -1,0 +1,6 @@
+/build/*
+Chip-84 PSX Edition.*
+chip84.elf
+chip84.exe
+chip84.iso
+*.lzp

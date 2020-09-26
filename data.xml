@@ -1,0 +1,49 @@
+<lzp_project>
+
+	<create packname="data.lzp" format="lzp">
+
+		<file alias="screen_sprite">screen_sprite.tim</file>
+		
+		<file alias="15PUZZLE">rom/15PUZZLE</file>
+		<file alias="BLITZ">rom/BLITZ</file>
+		<file alias="BRIX">rom/BRIX</file>
+		<file alias="C2048">rom/C2048</file>
+		<file alias="CAVEXPLR">rom/CAVEXPLR</file>
+		<file alias="CKOSMIC">rom/CKOSMIC</file>
+		<file alias="CONNECT4">rom/CONNECT4</file>
+		<file alias="DANM8KU">rom/DANM8KU</file>
+		<file alias="DOWN8">rom/DOWN8</file>
+		<file alias="GUESS">rom/GUESS</file>
+		<file alias="HIDDEN">rom/HIDDEN</file>
+		<file alias="INVADERS">rom/INVADERS</file>
+		<file alias="KALEID">rom/KALEID</file>
+		<file alias="MANDEL">rom/MANDEL</file>
+		<file alias="MAZE">rom/MAZE</file>
+		<file alias="MEMSHIFT">rom/MEMSHIFT</file>
+		<file alias="MERLIN">rom/MERLIN</file>
+		<file alias="MISSILE">rom/MISSILE</file>
+		<file alias="PONG">rom/PONG</file>
+		<file alias="PONG2">rom/PONG2</file>
+		<file alias="PUZZLE">rom/PUZZLE</file>
+		<file alias="RANCHER">rom/RANCHER</file>
+		<file alias="SCTEST">rom/SCTEST</file>
+		<file alias="SLOPE">rom/SLOPE</file>
+		<file alias="SPACEJAM">rom/SPACEJAM</file>
+		<file alias="SPACRACE">rom/SPACRACE</file>
+		<file alias="SYZYGY">rom/SYZYGY</file>
+		<file alias="TANK">rom/TANK</file>
+		<file alias="TANK2">rom/TANK2</file>
+		<file alias="TESTCOLL">rom/TESTCOLL</file>
+		<file alias="TETRIS">rom/TETRIS</file>
+		<file alias="TICTAC">rom/TICTAC</file>
+		<file alias="UFO">rom/UFO</file>
+		<file alias="VBRIX">rom/VBRIX</file>
+		<file alias="VERS">rom/VERS</file>
+		<file alias="WIPEOFF">rom/WIPEOFF</file>
+		
+		<file alias="SPACEFIG">rom/schip8/SPACEFIG</file>
+		<file alias="DVN8">rom/schip8/DVN8</file>
+		
+	</create>
+	
+</lzp_project>
