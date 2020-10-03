@@ -5,6 +5,7 @@
 		<file alias="screen_sprite">screen_sprite.tim</file>
 		
 		<file alias="15PUZZLE">rom/15PUZZLE</file>
+		<file alias="BCTEST">rom/BCTEST</file>
 		<file alias="BLITZ">rom/BLITZ</file>
 		<file alias="BRIX">rom/BRIX</file>
 		<file alias="C2048">rom/C2048</file>
@@ -34,6 +35,7 @@
 		<file alias="TANK">rom/TANK</file>
 		<file alias="TANK2">rom/TANK2</file>
 		<file alias="TESTCOLL">rom/TESTCOLL</file>
+		<file alias="TESTOP">rom/TESTOP</file>
 		<file alias="TETRIS">rom/TETRIS</file>
 		<file alias="TICTAC">rom/TICTAC</file>
 		<file alias="UFO">rom/UFO</file>
@@ -41,8 +43,29 @@
 		<file alias="VERS">rom/VERS</file>
 		<file alias="WIPEOFF">rom/WIPEOFF</file>
 		
-		<file alias="SPACEFIG">rom/schip8/SPACEFIG</file>
+		<file alias="ALIEN">rom/schip8/ALIEN</file>
+		<file alias="ANT">rom/schip8/ANT</file>
+		<file alias="BLAKRAIN">rom/schip8/BLAKRAIN</file>
+		<file alias="BLINKY">rom/schip8/BLINKY</file>
+		<file alias="C8SCRATC">rom/schip8/C8SCRATC</file>
+		<file alias="C83DTITL">rom/schip8/C83DTITL</file>
+		<file alias="CAR">rom/schip8/CAR</file>
 		<file alias="DVN8">rom/schip8/DVN8</file>
+		<file alias="FIELD">rom/schip8/FIELD</file>
+		<file alias="JOUST">rom/schip8/JOUST</file>
+		<file alias="OCTOPEG">rom/schip8/OCTOPEG</file>
+		<file alias="OCTOVORE">rom/schip8/OCTOVORE</file>
+		<file alias="PIPER">rom/schip8/PIPER</file>
+		<file alias="RACE">rom/schip8/RACE</file>
+		<file alias="SCRLTEST">rom/schip8/SCRLTEST</file>
+		<file alias="SCRRTEST">rom/schip8/SCRRTEST</file>
+		<file alias="SNOWDAZE">rom/schip8/SNOWDAZE</file>
+		<file alias="SOKOBAN">rom/schip8/SOKOBAN</file>
+		<file alias="SPACEFIG">rom/schip8/SPACEFIG</file>
+		<file alias="SWEECOPT">rom/schip8/SWEECOPT</file>
+		<file alias="TRAFFIC">rom/schip8/TRAFFIC</file>
+		<file alias="UBOAT">rom/schip8/UBOAT</file>
+		<file alias="WORM">rom/schip8/WORM</file>
 		
 	</create>
 	

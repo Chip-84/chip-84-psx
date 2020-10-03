@@ -1,4 +1,5 @@
 #include <lzp.h>
+#include "helper.h"
 #include "chip8.h"
 
 /* OT and Packet Buffer sizes */
@@ -17,7 +18,7 @@ int SCREEN_SCALE = 2;
 int cpf = 20;
 
 int quit = 0;
-int mode = 3;
+int mode = 2;
 
 DB db[2];
 int db_active = 0;
@@ -30,6 +31,9 @@ TIM_IMAGE screen_tim;
 unsigned int* screen_sprite;
 extern unsigned int resources[];
 char fileNames[64][17];
+
+int debugMode = 0;
+
 
 // Init function
 void init(void)
@@ -48,8 +52,8 @@ void init(void)
 	SetDefDrawEnv(&db[1].draw, 0, 0, 320, 240);
 	
 	// Set and enable clear color
-	setRGB0(&db[0].draw, 0, 0, 0);
-	setRGB0(&db[1].draw, 0, 0, 0);
+	setRGB0(&db[0].draw, 69, 4, 20);
+	setRGB0(&db[1].draw, 69, 4, 20);
 	db[0].draw.isbg = 1;
 	db[1].draw.isbg = 1;
 	
@@ -134,6 +138,7 @@ void loadProgramPsx(int index) {
 	loadProgram(rom, fileSize);
 }
 
+// Set keypad flags for menus
 void menuKeypad(PADTYPE* pad) {
 	if(pad->stat == 0) {
 		if((pad->type == 0x4) || (pad->type == 0x5) || (pad->type == 0x7)) {
@@ -236,12 +241,14 @@ void menuKeypad(PADTYPE* pad) {
 
 int main(int argc, char* argv[]) {
 	POLY_FT4 *quad;
+	POLY_F4 *quad_unt;
 	PADTYPE *pad;
 	
 	int i;
 	int fileSize = 0;
 	int fileCount = 0;
 	int frame = 0;
+	int frameRef = 0;
 	
 	// Load the screen_sprite tim file
 	i = lzpSearchFile("screen_sprite", resources);
@@ -264,15 +271,19 @@ int main(int argc, char* argv[]) {
 	loadProgramPsx(0);
 	
 	int sx = 30, sy = 50;
+	int selection = 0;
 	int fileSelection = 0;
 	
-	int fntStream = FntOpen(0, 10, 500, 400, 0, 1024);
+	int fntStream = FntOpen(0, 10, 320, 224, 0, 1024);
+	
+	memset(screen_tim.paddr, 0, 8192);
 	
 	while(!quit) {
+		srand(frame);
 		pad = (PADTYPE*)&pad_buff[0][0];
 		
 		switch(mode) {
-		case 0: {
+		case 0: {					// Emulation screen
 			// Resize screen sprite to current CHIP-8 screen size
 			screen_tim.prect->w = screen_height;
 			screen_tim.prect->h = screen_height;
@@ -344,7 +355,7 @@ int main(int argc, char* argv[]) {
 					}
 					if(!(pad->btn&PAD_START)) {
 						mode = 3;
-						fileSelection = 0;
+						selection = 0;
 						break;
 					}
 				}
@@ -370,58 +381,132 @@ int main(int argc, char* argv[]) {
 					} else {
 						keys[0xf] = 0;
 					}
+					if(!(pad->btn&PAD_R3)) {
+						debugMode = -1;
+					} else {
+						if(debugMode == -1) debugMode = 1;
+					}
 				}
 			}
+			
+			emulateCycle(cpf);
 			
 			// Draw screen quad
 			quad = (POLY_FT4*)db_nextpri;
 			setPolyFT4(quad);
 			setXY4(quad, sx, sy, sx+128*SCREEN_SCALE, sy, sx, sy+64*SCREEN_SCALE, sx+128*SCREEN_SCALE, sy+64*SCREEN_SCALE);
 			setRGB0(quad, 128, 128, 128);
-			quad->tpage = getTPage(screen_tim.mode&0b1001, 0, screen_tim.prect->x, screen_tim.prect->y);
+			quad->tpage = getTPage(screen_tim.mode, 0, screen_tim.prect->x, screen_tim.prect->y);
 			setClut(quad, screen_tim.crect->x, screen_tim.crect->y);
 			setUVWH(quad, 0, 0, screen_width, screen_height);
 			addPrim(db[db_active].ot, quad);
 			
-			// Copy canvas data to the screen sprite's pixel data
-			memcpy(screen_tim.paddr, canvas_data, pixel_number);
+			quad_unt = (POLY_F4*)(quad+1);
+			setPolyF4(quad_unt);
+			setXY4(quad_unt, sx, sy, sx+128*SCREEN_SCALE, sy, sx, sy+64*SCREEN_SCALE, sx+128*SCREEN_SCALE, sy+64*SCREEN_SCALE);
+			//setXY4(quad_unt, 0, 0, 320, 0, 0, 240, 320, 240);
+			setRGB0(quad_unt, 0, 0, 0);
+			addPrim(db[db_active].ot, quad_unt);
+			
+			if(drawFlag) {
+				// Copy canvas data to the screen sprite's pixel data
+				memcpy(screen_tim.paddr, canvas_data, pixel_number);
+				// Switch colors around because CLUT is weird :/
+				memadd(screen_tim.paddr, 1, pixel_number);
+			}
 			
 			// Load screen sprite into the tim from memory
 			LoadImage(screen_tim.prect, screen_tim.paddr);
 			
-			FntPrint(fntStream, "\n %s", fileNames[fileSelection]);
-			FntFlush(fntStream);
-			emulateCycle(cpf);
+			if(debugMode == 1) {
+				int sfState = 0;
+				int btnState = 0;
+				while(sfState != 2) {
+					pad = (PADTYPE*)&pad_buff[0][0];
+					if(pad->stat == 0) {
+						if((pad->type == 0x4) || (pad->type == 0x5) || (pad->type == 0x7)) {
+							if(!(pad->btn&PAD_START)) {
+								mode = 3;
+								selection = 0;
+								sfState = 2;
+								break;
+							}
+							if(!(pad->btn&PAD_SELECT)) {
+								sfState = 1;
+							} else {
+								if(sfState == 1) sfState = 2;
+							}
+						}
+						if((pad->type == 0x5) || (pad->type == 0x7)) {
+							if(!(pad->btn&PAD_R3)) {
+								btnState = 1;
+							} else {
+								if(btnState == 1) btnState = 2;
+							}
+						}
+					}
+					FntPrint(fntStream, "OP: %04x PC: %04x\n", opcode, pc);
+					FntPrint(fntStream, "V0:%02x V1:%02x V2:%02x V3:%02x V4:%02x V5:%02x\nV6:%02x V7:%02x V8:%02x V9:%02x VA:%02x VB:%02x\nVC:%02x VD:%02x VE:%02x VF:%02x", V[0],V[1],V[2],V[3],V[4],V[5],V[6],V[7],V[8],V[9],V[10],V[11],V[12],V[13],V[14],V[15]);
+					FntFlush(fntStream);
+					
+					memcpy(screen_tim.paddr, canvas_data, pixel_number);
+					// Switch colors around because CLUT is weird :/
+					memadd(screen_tim.paddr, 1, pixel_number);
+					LoadImage(screen_tim.prect, screen_tim.paddr);
+					
+					if(btnState == 2) {
+						debugMode = 0;
+						sfState = 2;
+						break;
+					}
+				}
+			} else {
+				FntPrint(fntStream, "\n %s", fileNames[fileSelection]);
+				FntFlush(fntStream);
+			}
+			
 			break;
 		}
-		case 1: {
+		case 1: {					// ROM file selection screen
 			int tmp = keys[0x5];
 			menuKeypad(pad);
 			
 			if(keys[0x1] == 1) {
-				fileSelection--;
+				frameRef = frame;
+				selection--;
 			} else if(keys[0x2] == 1) {
-				fileSelection++;
+				frameRef = frame;
+				selection++;
 			}
-			if(fileSelection < 0) fileSelection = fileCount - 1;
-			if(fileSelection > fileCount - 1) fileSelection = 0;
+			if(keys[0x1] == 2) {
+				if(frame - frameRef > 10 && frame % 2 == 0) {
+					selection--;
+				}
+			} else if(keys[0x2] == 2) {
+				if(frame - frameRef > 10 && frame % 2 == 0) {
+					selection++;
+				}
+			}
+			if(selection < 0) selection = fileCount - 1;
+			if(selection > fileCount - 1) selection = 0;
 			
 			if(keys[0x5] == 0 && tmp == 2) {
-				loadProgramPsx(fileSelection);
+				loadProgramPsx(selection);
+				fileSelection = selection;
 				mode = 0;
 				break;
 			}
 			if(keys[0xd] == 1) {
 				mode = 3;
-				fileSelection = 0;
+				selection = 0;
 				break;
 			}
 			
 			FntPrint(fntStream, "\n CHOOSE A ROM\n\n");
 			for(i = 0; i < fileCount; i++) {
-				if(fileSelection - i < 20) {
+				if(selection - i < 20) {
 					char fileNameBuffer[20];
-					if(fileSelection == i) {
+					if(selection == i) {
 						sprintf(fileNameBuffer, " > %s", fileNames[i]);
 					} else {
 						sprintf(fileNameBuffer, "   %s", fileNames[i]);
@@ -433,32 +518,48 @@ int main(int argc, char* argv[]) {
 			
 			break;
 		}
-		case 2: {
+		case 2: {					// Splash screen
 			FntPrint(fntStream, "\n\n\n\n\n\n\n\n\n\n\n\n           CHIP-84 PSX EDITION\n\n");
 			FntPrint(fntStream, "          2020 CHRISTIAN KOSMAN\n");
 			FntFlush(fntStream);
 			if(frame > 120) mode = 3;
 			break;
 		}
-		case 3: {
+		case 3: {					// Main menu screen
 			int tmp = keys[0x5];
 			menuKeypad(pad);
 			
 			if(keys[0x1] == 1) {
-				fileSelection--;
+				frameRef = frame;
+				selection--;
 			} else if(keys[0x2] == 1) {
-				fileSelection++;
+				frameRef = frame;
+				selection++;
 			}
-			if(fileSelection < 0) fileSelection = fileCount - 1;
-			if(fileSelection > fileCount - 1) fileSelection = 0;
+			if(keys[0x1] == 2) {
+				if(frame - frameRef > 10 && frame % 2 == 0) {
+					selection--;
+				}
+			} else if(keys[0x2] == 2) {
+				if(frame - frameRef > 10 && frame % 2 == 0) {
+					selection++;
+				}
+			}
+			if(selection < 0) selection = 3;
+			if(selection > 3) selection = 0;
 			
 			if(keys[0x5] == 0 && tmp == 2) {
-				if(fileSelection == 0) {
+				if(selection == 0) {
 					mode = 0;
 					break;
-				} else if(fileSelection == 1) {
-					fileSelection = 0;
+				} else if(selection == 1) {
+					selection = 0;
 					mode = 1;
+					break;
+				} else if(selection == 3) {
+					debugMode ^= 1;
+					//mode = 0;
+					cpf = 1;
 					break;
 				}
 			}
@@ -469,8 +570,10 @@ int main(int argc, char* argv[]) {
 				"RESUME",
 				"CHOOSE A ROM...",
 				"CYCLES PER FRAME: ",
-				"EXIT"
+				"DEBUG MODE: OFF"
 			};
+			if(debugMode)
+				strcpy(menuItems[3], "DEBUG MODE: ON ");
 			for(i = 0; i < 4; i++) {
 				char menuItemBuffer[20];
 				if(i == 2) {
@@ -479,15 +582,15 @@ int main(int argc, char* argv[]) {
 					} else if(keys[0xc] == 1) {
 						cpf++;
 					}
-					if(cpf < 0) cpf = 100;
-					if(cpf > 100) cpf = 0;
-					if(fileSelection == i) {
+					if(cpf < 1) cpf = 100;
+					if(cpf > 100) cpf = 1;
+					if(selection == i) {
 						sprintf(menuItemBuffer, " > %s%d", menuItems[i], cpf);
 					} else {
 						sprintf(menuItemBuffer, "   %s%d", menuItems[i], cpf);
 					}
 				} else {
-					if(fileSelection == i) {
+					if(selection == i) {
 						sprintf(menuItemBuffer, " > %s", menuItems[i]);
 					} else {
 						sprintf(menuItemBuffer, "   %s", menuItems[i]);
@@ -500,6 +603,7 @@ int main(int argc, char* argv[]) {
 			break;
 		}
 		}
+		
 		display();
 		frame++;
 	}

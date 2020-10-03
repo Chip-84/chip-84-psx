@@ -128,25 +128,18 @@ void emulateCycle(unsigned char steps) {
 		
 		pc += 2;
 		
-		srand(64);
-		
 		switch(opcode & 0xf000) {
 			case 0x0000: {
 				switch(opcode & 0x00f0) {
 					case 0x00c0: { //SCD
 						unsigned char n = (opcode & 0x000f);
 						unsigned char *disp = &canvas_data[0][0];
-						unsigned char j;
 						
 						drawFlag = true; 
 						
-						for(j = 0; j < 2; j++) {
-							if(plane & (j + 1) == 0) continue;
-							disp = &canvas_data[j][0];
-							for(i = screen_height-2; i >= 0; i--) {
-								memcpy(disp + (i+n)*screen_width, disp + i*screen_width, screen_width);
-								memset(disp + i*screen_width, 0, screen_width);
-							}
+						for(i = screen_height-2; i >= 0; i--) {
+							memcpy(disp + (i+n)*screen_width, disp + i*screen_width, screen_width);
+							memset(disp + i*screen_width, 0, screen_width);
 						}
 						
 						break;
@@ -154,17 +147,12 @@ void emulateCycle(unsigned char steps) {
 					case 0x00d0: { //SCU
 						unsigned char n = (opcode & 0x000f);
 						unsigned char *disp = &canvas_data[0][0];
-						unsigned char j;
 						
 						drawFlag = true; 
 						
-						for(j = 0; j < 2; j++) {
-							if(plane & (j + 1) == 0) continue;
-							disp = &canvas_data[j][0];
-							for(i = 0; i < screen_height-2; i--) {
-								memcpy(disp + i*screen_width, disp + (i+n)*screen_width, screen_width);
-								memset(disp + (i+n)*screen_width, 0, screen_width);
-							}
+						for(i = 0; i < screen_height-2; i--) {
+							memcpy(disp + i*screen_width, disp + (i+n)*screen_width, screen_width);
+							memset(disp + (i+n)*screen_width, 0, screen_width);
 						}
 						
 						break;
@@ -183,31 +171,21 @@ void emulateCycle(unsigned char steps) {
 						break;
 					case 0x00fb: { //SCR
 						unsigned char *disp = &canvas_data[0][0];
-						unsigned char j;
 						
-						for(j = 0; j < 2; j++) {
-							if(plane & (j + 1) == 0) continue;
-							disp = &canvas_data[j][0];
-							for(i = 0; i < screen_height; i++) {
-								memmove(disp + 4, disp, screen_width - 4);
-								memset(disp, 0, 4);
-								disp += screen_width;
-							}
+						for(i = 0; i < screen_height; i++) {
+							memmove(disp + 4, disp, screen_width - 4);
+							memset(disp, 0, 4);
+							disp += screen_width;
 						}
 						break;
 					}
 					case 0x00fc: { //SCL
 						unsigned char *disp = &canvas_data[0][0];
-						unsigned char j;
 						
-						for(j = 0; j < 2; j++) {
-							if(plane & (j + 1) == 0) continue;
-							disp = &canvas_data[j][0];
-							for(i = 0; i < screen_height; i++) {
-								memmove(disp, disp + 4, screen_width - 4);
-								memset(disp + screen_width - 4, 0, 4);
-								disp += screen_width;
-							}
+						for(i = 0; i < screen_height; i++) {
+							memmove(disp, disp + 4, screen_width - 4);
+							memset(disp + screen_width - 4, 0, 4);
+							disp += screen_width;
 						}
 						break;
 					}
