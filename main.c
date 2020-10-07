@@ -577,10 +577,23 @@ int main(int argc, char* argv[]) {
 			for(i = 0; i < 4; i++) {
 				char menuItemBuffer[20];
 				if(i == 2) {
-					if(keys[0x3] == 1) {
-						cpf--;
-					} else if(keys[0xc] == 1) {
-						cpf++;
+					if(selection == 2) {
+						if(keys[0x3] == 1) {
+							frameRef = frame;
+							cpf--;
+						} else if(keys[0xc] == 1) {
+							frameRef = frame;
+							cpf++;
+						}
+						if(keys[0x3] == 2) {
+							if(frame - frameRef > 10 && frame % 2 == 0) {
+								cpf--;
+							}
+						} else if(keys[0xc] == 2) {
+							if(frame - frameRef > 10 && frame % 2 == 0) {
+								cpf++;
+							}
+						}
 					}
 					if(cpf < 1) cpf = 100;
 					if(cpf > 100) cpf = 1;
