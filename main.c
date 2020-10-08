@@ -1,5 +1,4 @@
 #include <lzp.h>
-#include "helper.h"
 #include "chip8.h"
 
 /* OT and Packet Buffer sizes */
@@ -209,35 +208,6 @@ void menuKeypad(PADTYPE* pad) {
 			} else {
 				keys[0xd] = 0;
 			}
-			if(!(pad->btn&PAD_R1)) {
-				if(keys[0x7] == 0)
-					keys[0x7] = 1;
-				else if(keys[0x7] == 1)
-					keys[0x7] = 2;
-			} else {
-				keys[0x7] = 0;
-			}
-			if(!(pad->btn&PAD_R2)) {
-				keys[0x8] = 1;
-			} else {
-				keys[0x8] = 0;
-			}
-			if(!(pad->btn&PAD_L1)) {
-				keys[0x9] = 1;
-			} else {
-				keys[0x9] = 0;
-			}
-			if(!(pad->btn&PAD_L2)) {
-				keys[0xe] = 1;
-			} else {
-				keys[0xe] = 0;
-			}
-			if(!(pad->btn&PAD_SELECT)) {
-				
-			}
-			if(!(pad->btn&PAD_START)) {
-				
-			}
 		}
 	}
 }
@@ -402,6 +372,12 @@ int main(int argc, char* argv[]) {
 				memcpy(screen_tim.paddr, canvas_data, pixel_number);
 			}
 			
+			// PSn00bSDK quirk: for some reason changing the scale of a quad affects the UV
+			// mapping of it, so I had to mess with the quad's size and UV coords for it
+			// to work on real hardware.  In NO$PSX, it'll look kinda weird, but XEBRA, mednafen
+			// or a real PS1 should look relatively normal.  I say relatively because the bottom
+			// right edges of the screen are cut off a bit.
+			
 			// Draw screen quad
 			quad = (POLY_FT4*)db_nextpri;
 			setPolyFT4(quad);
@@ -539,18 +515,22 @@ int main(int argc, char* argv[]) {
 					selection++;
 				}
 			}
-			if(selection < 0) selection = 3;
-			if(selection > 3) selection = 0;
+			if(selection < 0) selection = 4;
+			if(selection > 4) selection = 0;
 			
 			if(keys[0x5] == 0 && tmp == 2) {
 				if(selection == 0) {
 					mode = 0;
 					break;
 				} else if(selection == 1) {
+					loadProgramPsx(fileSelection);
+					mode = 0;
+					break;
+				} else if(selection == 2) {
 					selection = 0;
 					mode = 1;
 					break;
-				} else if(selection == 3) {
+				} else if(selection == 4) {
 					debugMode ^= 1;
 					//mode = 0;
 					cpf = 1;
@@ -560,18 +540,19 @@ int main(int argc, char* argv[]) {
 			
 			
 			FntPrint(fntStream, "\n MAIN MENU\n\n");
-			char menuItems[4][32] = {
+			char menuItems[5][32] = {
 				"RESUME",
+				"RESTART",
 				"CHOOSE A ROM...",
 				"CYCLES PER FRAME: ",
 				"DEBUG MODE: OFF"
 			};
 			if(debugMode)
-				strcpy(menuItems[3], "DEBUG MODE: ON ");
-			for(i = 0; i < 4; i++) {
+				strcpy(menuItems[4], "DEBUG MODE: ON ");
+			for(i = 0; i < 5; i++) {
 				char menuItemBuffer[20];
-				if(i == 2) {
-					if(selection == 2) {
+				if(i == 3) {
+					if(selection == 3) {
 						if(keys[0x3] == 1) {
 							frameRef = frame;
 							cpf--;
