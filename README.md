@@ -19,29 +19,29 @@ This version of Chip-84 is built upon the [PSn00bSDK](https://github.com/Lameguy
 ## Usage
 
 ### In CHIP-8 Program
-D-pad Up: Key 1
-D-pad Down: Key 2
-D-pad Left: Key 3
-D-pad Right: Key C
-Triangle: Key 4
-Cross (X): Key 5
-Square: Key 6
-Circle: Key D
-R1: Key 7
-R2 Key 8
-L1: Key 9
-L2: Key E
-Left Stick Down: Key A
-Left Stick Up: Key 0
-Left Stick Left: Key B
-Left Stick Right: Key F
+D-pad Up: Key 1 \
+D-pad Down: Key 2 \
+D-pad Left: Key 3 \
+D-pad Right: Key C \
+Triangle: Key 4 \
+Cross (X): Key 5 \
+Square: Key 6 \
+Circle: Key D \
+R1: Key 7 \
+R2 Key 8 \
+L1: Key 9 \
+L2: Key E \
+Left Stick Down: Key A \
+Left Stick Up: Key 0 \
+Left Stick Left: Key B \
+Left Stick Right: Key F \
 
-Start: Main menu
-R3: Toggle debug mode
-Select: Advance frame while in debug mode
+Start: Main menu \
+R3: Toggle debug mode \
+Select: Advance frame while in debug mode \
 
 ### In Menus
-Up/Down: Navigate
-Left/Right: Raise/lower option values
-Cross (X): Select
-Circle: Back
+Up/Down: Navigate \
+Left/Right: Raise/lower option values \
+Cross (X): Select \
+Circle: Back \
