@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
 	
 	loadProgramPsx(0);
 	
-	int sx = 30, sy = 50;
+	int sx = 32, sy = 52;
 	int selection = 0;
 	int fileSelection = 0;
 	
@@ -404,7 +404,6 @@ int main(int argc, char* argv[]) {
 			quad_unt = (POLY_F4*)(quad+1);
 			setPolyF4(quad_unt);
 			setXY4(quad_unt, sx, sy, sx+128*SCREEN_SCALE, sy, sx, sy+64*SCREEN_SCALE, sx+128*SCREEN_SCALE, sy+64*SCREEN_SCALE);
-			//setXY4(quad_unt, 0, 0, 320, 0, 0, 240, 320, 240);
 			setRGB0(quad_unt, 0, 0, 0);
 			addPrim(db[db_active].ot, quad_unt);
 			
@@ -415,6 +414,7 @@ int main(int argc, char* argv[]) {
 				memadd(screen_tim.paddr, 1, pixel_number);
 			}
 			
+			DrawSync(0);
 			// Load screen sprite into the tim from memory
 			LoadImage(screen_tim.prect, screen_tim.paddr);
 			

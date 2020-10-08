@@ -4,6 +4,8 @@
 
 		<file alias="screen_sprite">screen_sprite.tim</file>
 		
+		<file alias="C84PSXED">rom/schip8/C84PSXED</file>
+		
 		<file alias="15PUZZLE">rom/15PUZZLE</file>
 		<file alias="BCTEST">rom/BCTEST</file>
 		<file alias="BLITZ">rom/BLITZ</file>

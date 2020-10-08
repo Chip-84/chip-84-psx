@@ -16,8 +16,8 @@ memadd:
 	blez	$a2, .Lexit
 	addi	$a2, -1
 	lb		$v1, 0($a0)
-	add		$v1, $v1, $a1
-	sb		$v1, 0($a0)
+	add		$v0, $v1, $a1
+	sb		$v0, 0($a0)
 	addiu	$a0, -1
 	b		.Lloop
 	nop
