@@ -77,6 +77,7 @@ void init(void)
 	FntOpen(0, 8, 320, 224, 0, 100);
 	
 	GetTimInfo(screen_sprite, &screen_tim);
+	*(screen_tim.caddr) = 0xffff8000;
 	
 	LoadImage(screen_tim.prect, screen_tim.paddr);
 	DrawSync(0);
@@ -136,6 +137,8 @@ void loadProgramPsx(int index) {
 	lzpUnpackFile(rom, resources, index);
 	// Load the rom into CHIP-84
 	loadProgram(rom, fileSize);
+	// Clear the screen
+	memset(screen_tim.paddr, 0, 8192);
 }
 
 // Set keypad flags for menus
@@ -241,7 +244,6 @@ void menuKeypad(PADTYPE* pad) {
 
 int main(int argc, char* argv[]) {
 	POLY_FT4 *quad;
-	POLY_F4 *quad_unt;
 	PADTYPE *pad;
 	
 	int i;
@@ -391,32 +393,26 @@ int main(int argc, char* argv[]) {
 			
 			emulateCycle(cpf);
 			
-			// Draw screen quad
-			quad = (POLY_FT4*)db_nextpri;
-			setPolyFT4(quad);
-			setXY4(quad, sx, sy, sx+128*SCREEN_SCALE, sy, sx, sy+64*SCREEN_SCALE, sx+128*SCREEN_SCALE, sy+64*SCREEN_SCALE);
-			setRGB0(quad, 128, 128, 128);
-			quad->tpage = getTPage(screen_tim.mode, 0, screen_tim.prect->x, screen_tim.prect->y);
-			setClut(quad, screen_tim.crect->x, screen_tim.crect->y);
-			setUVWH(quad, 0, 0, screen_width, screen_height);
-			addPrim(db[db_active].ot, quad);
-			
-			quad_unt = (POLY_F4*)(quad+1);
-			setPolyF4(quad_unt);
-			setXY4(quad_unt, sx, sy, sx+128*SCREEN_SCALE, sy, sx, sy+64*SCREEN_SCALE, sx+128*SCREEN_SCALE, sy+64*SCREEN_SCALE);
-			setRGB0(quad_unt, 0, 0, 0);
-			addPrim(db[db_active].ot, quad_unt);
+			DrawSync(0);
+			// Load screen sprite into the tim from memory
+			LoadImage(screen_tim.prect, screen_tim.paddr);
 			
 			if(drawFlag) {
 				// Copy canvas data to the screen sprite's pixel data
 				memcpy(screen_tim.paddr, canvas_data, pixel_number);
-				// Switch colors around because CLUT is weird :/
-				memadd(screen_tim.paddr, 1, pixel_number);
 			}
 			
-			DrawSync(0);
-			// Load screen sprite into the tim from memory
-			LoadImage(screen_tim.prect, screen_tim.paddr);
+			// Draw screen quad
+			quad = (POLY_FT4*)db_nextpri;
+			setPolyFT4(quad);
+			setXY4(quad, sx, sy, sx+127*SCREEN_SCALE, sy, sx, sy+63*SCREEN_SCALE, sx+127*SCREEN_SCALE, sy+63*SCREEN_SCALE);
+			setRGB0(quad, 128, 128, 128);
+			quad->tpage = getTPage(screen_tim.mode, 0, screen_tim.prect->x, screen_tim.prect->y);
+			setClut(quad, screen_tim.crect->x, screen_tim.crect->y);
+			setUVWH(quad, 0, 0, screen_width-1, screen_height-1);
+			
+			addPrim(db[db_active].ot, quad);
+			
 			
 			if(debugMode == 1) {
 				int sfState = 0;
@@ -450,8 +446,6 @@ int main(int argc, char* argv[]) {
 					FntFlush(fntStream);
 					
 					memcpy(screen_tim.paddr, canvas_data, pixel_number);
-					// Switch colors around because CLUT is weird :/
-					memadd(screen_tim.paddr, 1, pixel_number);
 					LoadImage(screen_tim.prect, screen_tim.paddr);
 					
 					if(btnState == 2) {
